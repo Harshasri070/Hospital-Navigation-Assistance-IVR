@@ -1,0 +1,7 @@
+venv/
+venv311/
+__pycache__/
+*.pyc
+audio_responses/
+temp_*.m4a
+*.mp3

@@ -1,10 +1,19 @@
 # main.py
 
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 from ivr_config import IVR_CONFIG
 import uuid
+import shutil
+
+# IVR AI services
+from service.stt_service import speech_to_text
+from service.tts_service import text_to_speech
+from utils.language_handler import detect_language
+from service.entity_service import extract_entities
+from service.dialogue_manager import generate_response
+from service.translation_service import translate_to_english, translate_from_english
 
 app = FastAPI()
 
@@ -68,63 +77,94 @@ def start_call(request: StartCallRequest):
 # =========================
 # 2️⃣ Menu Handling Logic
 # =========================
-@app.post("/ivr/input")
-def handle_input(request: InputRequest):
 
-    session = sessions.get(request.session_id)
 
+@app.post("/ivr/voice")
+async def handle_voice(session_id: str, audio: UploadFile = File(...)):
+
+    # 1️⃣ Check session
+    session = sessions.get(session_id)
     if not session:
         return {"error": "Invalid session"}
 
-    intent = detect_intent(request.text)
+    # 2️⃣ Save uploaded audio
+    audio_path = f"temp_{audio.filename}"
 
-    if not intent:
+    with open(audio_path, "wb") as buffer:
+        shutil.copyfileobj(audio.file, buffer)
+
+    # 3️⃣ Speech to Text
+    user_text = speech_to_text(audio_path)
+
+    if not user_text:
+        response_text = "Sorry, I could not hear you clearly. Please repeat."
+        audio_response = text_to_speech(response_text)
+
         return {
-            "status": "unknown",
-            "prompt": "Sorry, I did not understand. Please say OPD, Emergency, Pharmacy, or Directions."
+            "recognized_text": "",
+            "intent": None,
+            "audio_file": audio_response
         }
+    print("Recognized text:", user_text)
+    
 
-    if intent in IVR_CONFIG:
-        return {
-            "status": "ok",
-            "menu": intent,
-            "prompt": IVR_CONFIG[intent]["prompt"]
-        }
+    # 4️⃣ Language detection
+    language = detect_language(user_text)
 
+    # Debug: print detected language
+    print("Detected language:", language)
+
+    # normalize language code (important)
+    language = language.split("-")[0]
+
+    # 5️⃣ Translate user text → English
+    english_text = translate_to_english(user_text, language)
+
+    # Debug prints
+    print("Original text:", user_text)
+    print("Translated text:", english_text)
+    print("Detected language:", language)
+
+    # 6️⃣ Intent detection (use English text)
+    intent = detect_intent(english_text)
+
+    # 7️⃣ Entity extraction
+    entities = extract_entities(english_text)
+
+    # 8️⃣ Dialogue manager
+    response_text = generate_response(intent, entities)
+
+    # update session state
+    session["current_menu"] = intent
+    session["history"].append({
+        "user": user_text,
+        "intent": intent,
+        "entities": entities
+    })
+
+    # 9️⃣ Fallback logic
+    if not response_text:
+        response_text = (
+            "Sorry, I did not understand. "
+            "Please say pharmacy, cardiology, emergency, or neurology."
+        )
+
+    # 🔟 Translate response back to user's language
+    response_text = translate_from_english(response_text, language)
+
+    # 1️⃣1️⃣ Text to Speech (use detected language)
+    audio_response = text_to_speech(response_text, language)
+
+    # 1️⃣2️⃣ Return response
     return {
-        "status": "error",
-        "prompt": "Something went wrong."
+        "recognized_text": user_text,
+        "language": language,
+        "intent": intent,
+        "entities": entities,
+        "menu": session["current_menu"],
+        "response_text": response_text,
+        "audio_file": audio_response
     }
-
-    option = menu_data["options"][request.digit]
-    action = option["action"]
-
-    # =====================
-    # Action: GOTO (Menu Navigation)
-    # =====================
-    if action == "goto":
-        target_menu = option["target"]
-        session["current_menu"] = target_menu
-
-        return {
-            "status": "ok",
-            "menu": target_menu,
-            "prompt": IVR_CONFIG[target_menu]["prompt"]
-        }
-
-    # =====================
-    # Action: END (Call Termination)
-    # =====================
-    elif action == "end":
-        message = option["message"]
-        del sessions[request.session_id]
-
-        return {
-            "status": "hangup",
-            "action": "hangup",
-            "message": message
-        }
-
 
 # =========================
 # Health Check
