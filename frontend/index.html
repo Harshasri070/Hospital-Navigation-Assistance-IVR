@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Hospital IVR</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+
+<body>
+
+<div class="phone-container">
+
+    <!-- 🔵 HEADER -->
+    <div class="header">
+        <h2>📞 City Hospital IVR</h2>
+        <p id="callStatus">Ready to Call</p>
+    </div>
+
+    <!-- 💬 CHAT AREA -->
+    <div id="chatbox" class="chatbox"></div>
+
+    <!-- 📝 TEXT INPUT -->
+    <input type="text" id="userInput" placeholder="Type or speak..." />
+
+    <!-- 🎤 CONTROLS -->
+    <div class="controls">
+        <button onclick="sendInput()">Send</button>
+        <button onclick="startVoice()">🎤 Speak</button>
+    </div>
+
+    <!-- 🔢 KEYPAD -->
+    <div class="keypad">
+        <button onclick="pressKey('1')">1</button>
+        <button onclick="pressKey('2')">2</button>
+        <button onclick="pressKey('3')">3</button>
+
+        <button onclick="pressKey('4')">4</button>
+        <button onclick="pressKey('5')">5</button>
+        <button onclick="pressKey('6')">6</button>
+
+        <button onclick="pressKey('7')">7</button>
+        <button onclick="pressKey('8')">8</button>
+        <button onclick="pressKey('9')">9</button>
+
+        <button onclick="pressKey('*')">*</button>
+        <button onclick="pressKey('0')">0</button>
+        <button onclick="pressKey('#')">#</button>
+    </div>
+
+    <!-- 📞 CALL ACTIONS -->
+    <div class="actions">
+        <button onclick="startCall()">📞 Start Call</button>
+        <button onclick="endCall()">❌ End Call</button>
+    </div>
+
+</div>
+
+<script src="/static/script.js"></script>
+
+</body>
+</html>

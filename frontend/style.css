@@ -1,0 +1,106 @@
+body {
+    background: #111;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    font-family: Arial;
+}
+
+/* 📱 Phone container */
+.phone-container {
+    width: 320px;
+    background: #1e1e1e;
+    border-radius: 25px;
+    padding: 15px;
+    color: white;
+    box-shadow: 0 0 20px rgba(0,0,0,0.6);
+}
+
+/* 🔵 Header */
+.header {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+#callStatus {
+    font-size: 14px;
+    color: #00ffcc;
+    margin-top: 5px;
+}
+
+/* 💬 Chatbox */
+.chatbox {
+    height: 250px;
+    background: black;
+    padding: 10px;
+    overflow-y: auto;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+/* 📝 Input */
+input {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+    outline: none;
+    margin-top: 5px;
+}
+
+/* 🎤 Controls */
+.controls {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+}
+
+.controls button {
+    flex: 1;
+    margin: 5px;
+    padding: 10px;
+    border-radius: 10px;
+    border: none;
+    background: #4CAF50;
+    color: white;
+    cursor: pointer;
+}
+
+/* 🔢 Keypad */
+.keypad {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.keypad button {
+    padding: 15px;
+    border-radius: 15px;
+    border: none;
+    font-size: 18px;
+    background: #333;
+    color: white;
+}
+
+/* 📞 Call actions */
+.actions {
+    text-align: center;
+    margin-top: 15px;
+}
+
+.actions button {
+    margin: 5px;
+    padding: 10px 15px;
+    border-radius: 20px;
+    border: none;
+}
+
+/* 💬 Chat messages  */
+.chatbox div {
+    margin: 5px 0;
+    padding: 6px 8px;
+    border-radius: 8px;
+    background: #2c2c2c;
+}

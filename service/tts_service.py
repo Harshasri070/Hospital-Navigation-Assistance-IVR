@@ -9,9 +9,8 @@ os.makedirs(OUTPUT_FOLDER, exist_ok=True)
 # Supported language mapping
 LANGUAGE_MAP = {
     "en": "en",
-    "te": "te",
     "hi": "hi",
-    "ta": "ta"
+    "te": "te"
 }
 
 def text_to_speech(text, lang="en"):
@@ -24,5 +23,8 @@ def text_to_speech(text, lang="en"):
 
     tts = gTTS(text=text, lang=lang)
     tts.save(filepath)
+
+    print("Saved audio at:", filepath)
+    print("File exists:", os.path.exists(filepath))
 
     return filepath
